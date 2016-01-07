@@ -1,19 +1,21 @@
 import os
 import time
-
+import copy
 
 class Ai:
+
+
 	def __init__(self,game):
 		self.game = game
 
 	def isPosMine(self, x,y):
-		if x<0 or y<0 or x>=len(self.game.board) or y>=len(self.game.board): return False
-		if self.game.board[y][x] == True: return True
+		if x<0 or y<0 or x>=len(self.board) or y>=len(self.board): return False
+		if self.board[y][x] == True: return True
 		return False		
 
 	def isPosTheirs(self,x,y):
-		if x<0 or y<0 or x>=len(self.game.board) or y>=len(self.game.board): return False	
-		if self.game.board[y][x] == False: return True
+		if x<0 or y<0 or x>=len(self.board) or y>=len(self.board): return False	
+		if self.board[y][x] == False: return True
 		return False
 
 	def findConsecutiveVertical(self,x,y):
@@ -52,20 +54,46 @@ class Ai:
 			if self.isPosMine(x,y): score+=1
 		return score
 				
-	
-	def getConsecutive(self):
-		points = []
-		for i in range(len(self.game.board)):
-			for j in range(len(self.game.board[i])):
-				points.append(self.findConsecutiveVertical(i,j))		
-				points.append(self.findConsecutiveHorizontal(i,j))
-				points.append(self.findConsecutiveDiagonalRight(i,j))
-				points.append(self.findConsecutiveDiagonalLeft(i,j))
+	positionFunctions = [findConsecutiveVertical,findConsecutiveHorizontal,findConsecutiveDiagonalRight,findConsecutiveDiagonalLeft]
 
+	def getConsecutive(self):
+		points = {}
+		for i in range(len(self.board)):
+			for j in range(len(self.board[i])):
+				for positionFunction in self.positionFunctions:
+					score = positionFunction(self,i,j)
+					if score>0:
+						if score not in points: points[score] = 1
+						else: points[score] += 1
+		print(points)
+				
 		return points
-	def valueGameState(self):
-		self.board = self.game.board
-		print(self.getConsecutive())
+	def valueGameState(self, board):
+		self.board = board
+		return self.getConsecutive()
+
+	def setValue(self,i,j):
+		moveBoard = copy.copy(self.game.board)
+		moveBoard[i][j] = True
+		#import pdb; pdb.set_trace()
+		return moveBoard
+
+
+	def generateMoves(self):
+		boards = []
+		for i in range(len(self.game.board)):
+			for j in range(len(self.game.board)):
+				if self.game.board[i][j] == None: 
+					boards.append((self.setValue(i,j),(i,j)))  
+
+		return boards
+
+	def makeMove(self):
+		moves = self.generateMoves()
+		bestMove = {0:1}
+		for move in moves:
+			print(self.valueGameState(move[0]))
+
 		
 
 class PenteGame:
@@ -114,12 +142,10 @@ class PenteGame:
 		self.printBoard()
 		while self.over == False:
 			move = input("Please enter your move in the format x y:").split()
-			aiMove = input("Ai Move").split()
+		
 			self.checkInput(move)
-			self.checkInput(aiMove)
 			self.makeMove(move[0],move[1])
-			self.makeAiMove(aiMove[0],aiMove[1])
-			print(self.ai.valueGameState())
+			self.makeAiMove(self.ai.makeMove())
 					
 
 game=PenteGame()
