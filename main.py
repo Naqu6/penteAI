@@ -104,19 +104,31 @@ class Ai:
 			score+= 4**number*points
 		return score
 
-	def changeBoard(self,board,movingYou=True):
+	def getBestMove(self,board):
 		moves = self.generateMoves()
 		bestMove = (None,-float("inf"))
 		for move in moves:
-			self.lookingAt = AI_POSITION
+			self.lookingAt =movingYou==AI_POSITION
 			score = self.getScore(self.valueGameState(move))
-			self.lookingAt = PLAYER_POSITION
+			self.lookingAt = movingYou==PLAYER_POSITION
 			score -= 1.5*self.getScore(self.valueGameState(move))
 			if self.compareScores(score,bestMove[1]):
 				bestMove = (move,score)
-		return bestMove[0]
+		
+		return bestMove
+	
+	def changeBoard(self, board, stepsRemaining,personMoving=AI_POSITION)
+		outcomes = []
+		if stepsRemaining > 1:
+			moves = self.generateMoves()
+			for move in moves:
+				myBoard = board
+				myBoard[move[0]][move[1]] = personMoving
+				self.changeBoard(myBoard,stepsRemaining-1,personMoving=(not personMoving))
+							
+		else: 
 	def makeMove(self):
-		return self.changeBoard(self.game.board)
+		return self.changeBoard(self.game.board,2)[0]
 
 			
 		
