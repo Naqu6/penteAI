@@ -84,12 +84,14 @@ class Ai:
 
 
 	def generateMoves(self,board):
-		coords = []
+		coords = set()
 		for i in range(len(board)):
 			for j in range(len(board)):
-				if board[i][j] == None: 
-					coords.append((i,j))  
-
+				if board[i][j] != None:
+					cols = range(max(i-2,0),min(i+3,len(board)))
+					rows = range(max(j-2,0),min(j+3,len(board)))
+					points_to_add = {(p_i,p_j) for p_i in rows for p_j in cols if (p_i,p_j) not in coords and board[p_i][p_j]==None}
+					coords.update(points_to_add)
 		return coords
 
 #	def getMaxKey(self,score):
@@ -124,7 +126,7 @@ class Ai:
 		if stepsRemaining > 1:
 			moves = self.generateMoves(board)
 			for move in moves:
-				myBoard = board
+				myBoard = board[:]
 				myBoard[move[0]][move[1]] = personMoving
 				self.thinkDownTree(myBoard,stepsRemaining-1,personMoving=(not personMoving))
 		else:
@@ -134,7 +136,7 @@ class Ai:
 	
 	def makeMove(self):
 		self.outcomes = []
-		self.thinkDownTree(self.game.board,2)
+		self.thinkDownTree(self.game.board,1)
 		bestMove = (None,-float("inf"))
 		for move in self.outcomes:
 			if move[1] > bestMove[1]:
@@ -229,9 +231,11 @@ class PenteGame:
 		pass	
 
 	def makeMove(self,x,y):
-		self.board[y][x] = False
+		if self.board[y][x] == None:self.board[y][x] = False
+		else: return False
 		self.moveCheck()
 		self.printBoard()
+		return True
 
 	def checkInput(self,input):
 		try:
@@ -250,10 +254,15 @@ class PenteGame:
 		self.printBoard()
 		while self.over == False:
 			move = input("Please enter your move in the format x y:").split()
-		
+				
 			self.checkInput(move)
-			self.makeMove(move[0],move[1])
-			self.makeAiMove(self.ai.makeMove())
+				
+						
+			if self.makeMove(move[0],move[1]):
+				if input("Is this the move you want to make (Y/N):").lower() != 'y':
+					self.board[move[1]][move[0]]=None
+					self.printBoard()
+				else:self.makeAiMove(self.ai.makeMove())
 					
 
 game=PenteGame()
