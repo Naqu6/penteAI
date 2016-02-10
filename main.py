@@ -93,8 +93,8 @@ class Ai:
 		for i in range(len(board)):
 			for j in range(len(board)):
 				if board[i][j] != None:
-					cols = range(max(i-1,0),min(i+2,len(board)))
-					rows = range(max(j-1,0),min(j+2,len(board)))
+					cols = range(max(i-3,0),min(i+4,len(board)))
+					rows = range(max(j-3,0),min(j+4,len(board)))
 					points_to_add = {(p_i,p_j) for p_i in rows for p_j in cols if (p_i,p_j) not in coords and board[p_i][p_j]==None}
 					coords.update(points_to_add)
 		return coords
@@ -133,7 +133,7 @@ class Ai:
 		scores = {}
 		for move,moveTree in tree.items():
 			if isinstance(moveTree,int):
- 				if not isScores: 
+				if not isScores: 
 					isScores = True
 				if not trackOfScore: 
 					trackOfScores = moveTree	
@@ -145,13 +145,13 @@ class Ai:
 						trackOfScore = moveTree	 
 					
 			else:
-				scores[self.get_best_move_from_tree(moveTree,firstMove = False,personMoving = (not personMoving))1] = move		
+				scores[self.get_best_move_from_tree(moveTree,firstMove = False,personMoving = (not personMoving))] = move		
 				
 		if firstMove: return scores[max(scores.keys())]
 		if isScores: return trackOfScore
 
 		if personMoving: return max(scores.keys())
-		return min(scores.keys)
+		return min(scores.keys())
 
 
 
