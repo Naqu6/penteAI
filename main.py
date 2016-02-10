@@ -2,6 +2,7 @@ import os
 import time
 import copy
 
+
 AI_POSITION = True
 PLAYER_POSITION = False
 
@@ -82,14 +83,18 @@ class Ai:
 
 		return consecutive
 
+	def valueBoard(self,moveBoard):
+		self.board = moveBoard
+		return self.getConsecutive()
+
 
 	def generateMoves(self,board):
 		coords = set()
 		for i in range(len(board)):
 			for j in range(len(board)):
 				if board[i][j] != None:
-					cols = range(max(i-2,0),min(i+3,len(board)))
-					rows = range(max(j-2,0),min(j+3,len(board)))
+					cols = range(max(i-1,0),min(i+2,len(board)))
+					rows = range(max(j-1,0),min(j+2,len(board)))
 					points_to_add = {(p_i,p_j) for p_i in rows for p_j in cols if (p_i,p_j) not in coords and board[p_i][p_j]==None}
 					coords.update(points_to_add)
 		return coords
@@ -120,30 +125,52 @@ class Ai:
 				bestMove = (move,score)
 		
 		return bestMove
-	
+
+	def get_best_move_from_tree(self,tree,firstMove = True,personMoving = AI_POSITION):
+		trackOfScore = None
+		isScores = False
+		
+		scores = {}
+		for move,moveTree in tree.items():
+			if isinstance(moveTree,int):
+ 				if not isScores: 
+					isScores = True
+				if not trackOfScore: 
+					trackOfScores = moveTree	
+				elif personMoving == AI_POSITION:
+					if moveTree>trackOfScore:
+						trackOfScore = moveTree
+				else:
+					if moveTree<trackOfScore:
+						trackOfScore = moveTree	 
+					
+			else:
+				scores[self.get_best_move_from_tree(moveTree,firstMove = False,personMoving = (not personMoving))1] = move		
+				
+		if firstMove: return scores[max(scores.keys())]
+		if isScores: return trackOfScore
+
+		if personMoving: return max(scores.keys())
+		return min(scores.keys)
+
+
+
 	def thinkDownTree(self, board, stepsRemaining,personMoving=AI_POSITION):
 		
-		if stepsRemaining > 1:
+		if stepsRemaining >0:
+			tree = {}
 			moves = self.generateMoves(board)
 			for move in moves:
-				myBoard = board[:]
-				myBoard[move[0]][move[1]] = personMoving
-				self.thinkDownTree(myBoard,stepsRemaining-1,personMoving=(not personMoving))
+				movedBoard = board[:]
+				movedBoard[move[0]][move[1]] = personMoving
+				tree[move] = self.thinkDownTree(movedBoard,stepsRemaining=stepsRemaining-1,personMoving=(not personMoving))
+			return tree
 		else:
-			self.outcomes.append(self.getBestMove(board,personMoving))
-							
-		#else: 
-	
+			return self.getScore(self.valueBoard(board))
 	def makeMove(self):
-		self.outcomes = []
-		self.thinkDownTree(self.game.board,1)
-		bestMove = (None,-float("inf"))
-		for move in self.outcomes:
-			if move[1] > bestMove[1]:
-				bestMove=move
-		return bestMove[0]
+		tree = self.thinkDownTree(self.game.board,stepsRemaining=2)
+		return self.get_best_move_from_tree(tree)
 
-			
 		
 
 # class PenteGame:
