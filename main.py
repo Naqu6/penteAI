@@ -168,37 +168,6 @@ class Ai:
 		print(best_score)
 		return best_move
 
-		""" trackOfScore = None
-		isScores = False
-		
-		scores = {}
-		for move,moveTree in tree.items():
-			if moveTree:
-				if isinstance(moveTree,int):
-					if firstMove: scores[moveTree]=move
-					if not isScores: 
-						isScores = True
-					if not trackOfScore: 
-						trackOfScores = moveTree	
-					elif personMoving == AI_POSITION:
-						if moveTree>trackOfScore:
-							trackOfScore = moveTree
-					else:
-						if moveTree<trackOfScore:
-							trackOfScore = moveTree	 
-					
-				else:
-					scores[self.get_best_move_from_tree(moveTree,firstMove = False,personMoving = (not personMoving))] = move		
-				
-		print(scores)
-		if firstMove: 
-			return scores[max(scores.keys())]
-		if isScores: return trackOfScore
-
-		if personMoving: return max(scores.keys())
-#		
-#		print(personMoving)
-		return min(scores.keys()) """ 
 
 
 
