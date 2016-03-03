@@ -126,8 +126,49 @@ class Ai:
 		
 		return bestMove
 
-	def get_best_move_from_tree(self,tree,firstMove = True,personMoving = AI_POSITION):
-		trackOfScore = None
+	def get_best_move_from_branch(self,branch,person_moving = AI_POSITION):
+		best_score = float("inf")
+		best_move = None
+		if person_moving:
+			best_score *= -1
+		if isinstance(branch,dict):
+			for score in branch.values():
+				move_score = self.get_best_move_from_branch(score,person_moving = (not person_moving))
+				if person_moving:
+					if best_score < move_score and person_moving:
+						best_score = move_score
+				else:
+					if best_score > move_score and not person_moving:
+						best_score = move_score
+		else:
+			best_score = branch
+		return best_score
+						
+					
+
+	def get_best_move_from_tree(self,tree,person_moving = AI_POSITION):
+
+		best_move = None
+		best_score = float("inf")
+		if person_moving:
+			best_score *= -1
+
+		for move, branch in tree.items():
+			score = self.get_best_move_from_branch(branch,person_moving = (not person_moving))
+			if person_moving:
+				if score > best_score and person_moving:
+					best_score = score
+
+					best_move = move
+			else:
+				if score < best_move and not person_moving:
+					best_score = score
+					best_move = move
+		print(best_move)
+		print(best_score)
+		return best_move
+
+		""" trackOfScore = None
 		isScores = False
 		
 		scores = {}
@@ -157,7 +198,7 @@ class Ai:
 		if personMoving: return max(scores.keys())
 #		
 #		print(personMoving)
-		return min(scores.keys())
+		return min(scores.keys()) """ 
 
 
 
@@ -179,7 +220,6 @@ class Ai:
 
 	def makeMove(self):
 		tree = self.thinkDownTree(self.game.board,stepsRemaining=2)
-		print(tree)
 		x = self.get_best_move_from_tree(tree)
 		print(x)
 		return x 
