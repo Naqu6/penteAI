@@ -117,7 +117,7 @@ class Ai:
 		moves = self.generateMoves(board)
 		bestMove = (None,-float("inf"))
 		for move in moves:
-			self.lookingAt =movingYou==AI_POSITION
+			self.lookingAt=movingYou==AI_POSITION
 			score = self.getScore(self.valueGameState(move))
 			self.lookingAt = movingYou==PLAYER_POSITION
 			score -= 1.5*self.getScore(self.valueGameState(move))
@@ -156,12 +156,12 @@ class Ai:
 		for move, branch in tree.items():
 			score = self.get_best_move_from_branch(branch,person_moving = (not person_moving))
 			if person_moving:
-				if score > best_score and person_moving:
+				if score >= best_score and person_moving:
 					best_score = score
 
 					best_move = move
 			else:
-				if score < best_move and not person_moving:
+				if score <= best_move and not person_moving:
 					best_score = score
 					best_move = move
 		print(best_move)
@@ -189,8 +189,8 @@ class Ai:
 
 	def makeMove(self):
 		tree = self.thinkDownTree(self.game.board,stepsRemaining=2)
+		print({move: self.get_best_move_from_branch(branch) for move, branch in tree.items()})
 		x = self.get_best_move_from_tree(tree)
-		print(x)
 		return x 
 		
 
@@ -293,7 +293,7 @@ class PenteGame:
 			print("Please Enter a corrert Position")			
 
 	def makeAiMove(self,coords):
-                self.board[coords[0]][coords[1]] = True
+                self.board[coords[1]][coords[0]] = True
                 self.moveCheck()
                 self.printBoard()
 
